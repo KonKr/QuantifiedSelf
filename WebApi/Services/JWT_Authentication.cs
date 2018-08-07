@@ -1,4 +1,5 @@
-﻿using Microsoft.IdentityModel.Tokens;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -9,34 +10,37 @@ using System.Threading.Tasks;
 
 namespace WebApi.Services
 {
-    public static class JWT_Authentication
+    public class JWT_Authentication
     {
-        private static Claim[] ClaimsData { get; set; }
-        private static SymmetricSecurityKey Key { get; set; }
-        private static SigningCredentials SigningCredentials { get; set; }
+        private IConfiguration _config;
+        public JWT_Authentication(IConfiguration Configuration)
+        {
+            _config = Configuration;
+        }
 
-
-        public static String GetToken(String name)
+        public String GetToken(string userEmail)
         {
             //First produce the JWT Token Object...
-            var tokenObj = ProduceTokenObject(name);
+            var tokenObj = ProduceTokenObject(userEmail);
             var tokenStr = ProduceTokenString(tokenObj);
             return tokenStr;
         }
 
-        private static JwtSecurityToken ProduceTokenObject(String name)
+        private JwtSecurityToken ProduceTokenObject(string userEmail)
         {
             //Define Values...
-            ClaimsData = new[] {
-                new Claim(ClaimTypes.Name, name)
+            var ClaimsData = new[] {
+                new Claim(ClaimTypes.Name, userEmail)
             };
-            Key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("prepei_na_vroume_ena_kleidi_na_valoume_edw"));
-            SigningCredentials = new SigningCredentials(Key, SecurityAlgorithms.HmacSha256Signature);
+            var Key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JWT_Configuration:EncryptionKey"]));
+            var SigningCredentials = new SigningCredentials(Key, SecurityAlgorithms.HmacSha256Signature);
+
+            var expiresInMinutes = Convert.ToInt32(_config["JWT_Configuration:TokenDuration_inMinutes"]);
 
             var JWT_Token_Object = new JwtSecurityToken(
-                issuer: "Moi",
-                audience: "Toi",
-                expires: DateTime.Now.AddMinutes(1),
+                issuer: _config["JWT_Configuration:Issuer"],
+                audience: _config["JWT_Configuration:Audience"],
+                expires: DateTime.Now.AddMinutes(expiresInMinutes),
                 claims: ClaimsData,
                 signingCredentials: SigningCredentials
             );

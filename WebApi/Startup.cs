@@ -33,13 +33,14 @@ namespace WebApi
                     ValidateIssuer = true,
                     ValidateAudience = true,
                     ValidateIssuerSigningKey = true,
-                    ValidIssuer = "Moi",
-                    ValidAudience = "Moi",
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("helloworldasdfasdfasdfasdfasdfasdfasdfasdfasdfasdf"))
+                    ValidIssuer = Configuration["JWT_Configuration:Issuer"],
+                    ValidAudience = Configuration["JWT_Configuration:Audience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JWT_Configuration:EncryptionKey"]))
 
                 };
             });
             services.AddMvc();
+            services.AddSingleton(Configuration);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
