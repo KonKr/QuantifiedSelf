@@ -16,6 +16,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Include="Models\Azure_AnomalyIdentifier_Models\Azure_AnomalyIdentifier_Point_Instance_Model.cs" />
+    <Compile Include="Models\Azure_AnomalyIdentifier_Models\Azure_AnomalyIdentifier_toSend_AzureApi_Model.cs" />
     <Compile Include="Models\FitBitData.cs" />
     <Compile Include="Models\Quantified_Self_DBContext.cs" />
   </ItemGroup>
