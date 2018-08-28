@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using WebApi.Models;
 using Newtonsoft.Json;
+using WebApi.Models.Azure_AnomalyIdentifier_Models;
 
 namespace WebApi.Services
 {
@@ -38,6 +39,28 @@ namespace WebApi.Services
             {
                 throw e;
             }
+        }
+
+        public Azure_AnomalyIdentifier_toSend_AzureApi_Model NormalizeData(List<FitBitData> fitBitData_Input)
+        {
+            var normalizedData = new Azure_AnomalyIdentifier_toSend_AzureApi_Model(); //create new obj...
+
+            normalizedData.Points = new List<Azure_AnomalyIdentifier_Point_Instance_Model>(); //initialize var...
+
+            foreach (var db_item in fitBitData_Input)//foreach entry in database data...
+            {
+                normalizedData.Points.Add(
+                    new Azure_AnomalyIdentifier_Point_Instance_Model
+                    {
+                        Timestamp = db_item.Date.ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'Z'"),
+                        Value = Convert.ToDouble(db_item.Calories)//checking calories...
+                    });
+            }
+
+            
+
+            normalizedData.Period = 7;
+            return normalizedData;
         }
 
     }
