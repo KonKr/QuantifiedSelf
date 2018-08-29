@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.Models;
 using WebApi.Models.Azure_AnomalyIdentifier_Models;
+using WebApi.Repositories;
 using WebApi.Services;
 
 namespace WebApi.Controllers
@@ -16,27 +17,37 @@ namespace WebApi.Controllers
     {
         private Quantified_Self_DBContext db;
         private Azure_AnomalyIdentitfier aiService;
+        private MainRepository repo;
         public DataController()
         {
             db = new Quantified_Self_DBContext();
             aiService = new Azure_AnomalyIdentitfier();
+            repo = new MainRepository();
         }
 
         //TODO: Implement time depth througth URI parameters...
         [Authorize]
         [Route("api/Data")]
         [HttpGet]
-        public IActionResult GetData(int result_rows)
+        public IActionResult GetData(int rowsToExpect, string variableToGet)
         {
-            var db_data = db.FitBitData.Take(result_rows).ToList();
+            //Retrieve data from database for a specific variable, and to be returned with a number of rows...
+            var db_data = repo.GetDataFromDbForGivenVariable(rowsToExpect, variableToGet);
 
-            var normalized_data = aiService.NormalizeData(db_data);
+            //Convert data to be compatible with Azure Anomaly identifier api...
+            var normalized_data = repo.NormalizeDataForAAI(db_data);
 
-            var analysis = aiService.RequestAnalysis(normalized_data);
+            //Analyze data with the Azure Anomaly Identifier Api...
+            var analysis_data = aiService.AnalyzeData(normalized_data);
 
-            return Ok(analysis.Result);
+            //Create data to return...
+            var res = repo.GenerateDataForGraph(analysis_data.Result, db_data);
+
+            return Ok(res);
 
         }      
+
+        
 
     }
 }

@@ -16,8 +16,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="Models\Azure_AnomalyIdentifier_Models\Azure_AnomalyIdentifier_Point_Instance_Model.cs" />
-    <Compile Include="Models\Azure_AnomalyIdentifier_Models\Azure_AnomalyIdentifier_toSend_AzureApi_Model.cs" />
+    <Compile Include="Models\ApiOutput_Instance_Model.cs" />
+    <Compile Include="Models\Azure_AnomalyIdentifier_Models\Input\Azure_AnomalyIdentifier_Point_Instance_InputModel.cs" />
+    <Compile Include="Models\Azure_AnomalyIdentifier_Models\Input\Azure_AnomalyIdentifier_InputModel.cs" />
+    <Compile Include="Models\Azure_AnomalyIdentifier_Models\Output\Azure_AnomalyIdentifier_OutputModel.cs" />
+    <Compile Include="Models\DbDataRetrievalInstance_Model.cs" />
     <Compile Include="Models\FitBitData.cs" />
     <Compile Include="Models\Quantified_Self_DBContext.cs" />
   </ItemGroup>

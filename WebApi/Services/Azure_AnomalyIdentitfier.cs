@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using WebApi.Models;
 using Newtonsoft.Json;
 using WebApi.Models.Azure_AnomalyIdentifier_Models;
+using WebApi.Models.Azure_AnomalyIdentifier_Models.Output;
 
 namespace WebApi.Services
 {
@@ -18,7 +19,7 @@ namespace WebApi.Services
         private string requestData;
 
 
-        public async Task<string> RequestAnalysis(Azure_AnomalyIdentifier_toSend_AzureApi_Model modelToAnalyze)
+        public async Task<Azure_AnomalyIdentifier_OutputModel> AnalyzeData(Azure_AnomalyIdentifier_InputModel modelToAnalyze)
         {            
             try
             {
@@ -32,36 +33,16 @@ namespace WebApi.Services
                 httpClient.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", subscriptionKey);
                 var content = new StringContent(requestData, Encoding.UTF8, "application/json");
                 var res = await httpClient.PostAsync(endpoint, content);
-                //if (res.IsSuccessStatusCode)
-                    return await res.Content.ReadAsStringAsync();
+                if (res.IsSuccessStatusCode)                
+                    return JsonConvert.DeserializeObject<Azure_AnomalyIdentifier_OutputModel>(await res.Content.ReadAsStringAsync());
+                throw new Exception();
             }
             catch (Exception e)
             {
                 throw e;
             }
         }
-
-        public Azure_AnomalyIdentifier_toSend_AzureApi_Model NormalizeData(List<FitBitData> fitBitData_Input)
-        {
-            var normalizedData = new Azure_AnomalyIdentifier_toSend_AzureApi_Model(); //create new obj...
-
-            normalizedData.Points = new List<Azure_AnomalyIdentifier_Point_Instance_Model>(); //initialize var...
-
-            foreach (var db_item in fitBitData_Input)//foreach entry in database data...
-            {
-                normalizedData.Points.Add(
-                    new Azure_AnomalyIdentifier_Point_Instance_Model
-                    {
-                        Timestamp = db_item.Date.ToUniversalTime().ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'Z'"),
-                        Value = Convert.ToDouble(db_item.Calories)//checking calories...
-                    });
-            }
-
-            
-
-            normalizedData.Period = 7;
-            return normalizedData;
-        }
+        
 
     }
 }
