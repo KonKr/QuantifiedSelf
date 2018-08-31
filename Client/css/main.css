@@ -1,0 +1,137 @@
+* {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+}
+a {
+   outline: 0;
+}
+input, textarea {
+  -moz-user-select: text;
+  -khtml-user-select: text;
+  -webkit-user-select: text;
+  -o-user-select: text;
+  user-select: text;
+}
+
+html {
+  width: 100%;
+  background-color: #333333;
+  font-family: 'Poppins';
+  color: #333333;
+}
+
+body {
+  background: transparent;
+}
+
+.loader {
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  bottom: 0;
+  z-index: 1000;
+  background: #333333;
+  opacity: 1;
+  transition: opacity 0.5s;
+}
+.loader.fade {
+  opacity: 0;
+}
+.spinner-layer {
+  border-color: #0080ff !important;
+}
+
+nav, .off-canvas, .title-bar, .accordion, .accordion-title:hover, .accordion-title:focus, .accordion-content {
+  background-color: #ff8000;
+}
+.off-canvas h3 {
+  color: #ffffff;
+  margin-left: 1rem;
+}
+.accordion-menu a {
+  color: #ffffff;
+  font-size: 120%;
+}
+.accordion-menu .is-accordion-submenu-parent:not(.has-submenu-toggle) > a::after {
+  border-color: #ffffff transparent transparent;
+}
+.accordion-menu .menu.nested a:hover {
+  color: #333333;
+}
+.position-left.is-transition-push {
+  box-shadow: none;
+}
+
+.logout {
+  color: #333333;
+  padding-left: 1rem;
+  border-left: 1px solid #333333;
+  margin-right: 1rem;
+}
+.logout:hover {
+  cursor: pointer;
+}
+
+.grid-x {
+  width: 100%;
+}
+@media (max-width: 1024px) {
+  .grid-x {
+    height: 70vh;
+  }
+}
+
+#myChart {
+  background: #fefefe;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.sidenav-overlay {
+  background-color: transparent;
+}
+.drag-target {
+  width: 20px;
+}
+.dropdown-content li > a, .dropdown-content li > span {
+  color: #f0f0f0;
+  background-color: #ff8000;
+}
+.dropdown-content li > a:hover, .dropdown-content .divider {
+  background-color: #333333e7;
+}
+.brand-logo {
+  word-wrap: none;
+  word-break: keep-all;
+}
+@media (min-width: 993px) {
+  .brand-logo {
+    margin-left: 2%;
+  }
+}
+
+main {
+  margin-top: 2rem;
+  min-height: 100%;
+}
+
+.mobile-fab-tip {
+  position: fixed;
+  right: 85px;
+  padding:0px 0.5rem;
+  text-align: right;
+  background-color: #333333;
+  border-radius: 2px;
+  color: #f0f0f0;
+  width:auto;
+} 
+
+#myChart {
+  /* background-color: #f0f0f0; */
+}
