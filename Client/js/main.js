@@ -16,11 +16,35 @@
 //   console.log(data);
 // });
 
+'use strict';
+
 $(document).foundation();
 
 let sessionData;
 let curObj;
-let options = {};
+let options = {}, holdData = {};
+let dictionary = {
+  "steps": "Steps",
+  "distance": "Distance",
+  "floors": "Floors",
+  "elevation": "Elevation",
+  "calories": "Calories",
+  "minutesSedentary": "Minutes Sedentary",
+  "minutesLightlyActive": "Minutes \"lightly\" actice",
+  "minutesFairlyActive": "Minutes \"fairly\" actice",
+  "minutesVeryActive": "Minutes \"very\" actice",
+  "startTime": "Start time",
+  "timeInBed": "Time in bed",
+  "minutesAsleep": "Minutes asleep",
+  "awakeningsCount": "Awakenings count",
+  "minutesAwake": "Minutes awake",
+  "minutesToFallAsleep": "Minutes to fall asleep",
+  "minutesAfterWakeup": "Minutes after wakeup",
+  "efficiency": "Efficiency",
+  "weight": "Weight",
+  "bmi": "BMI",
+  "fat": "Fat"
+};
 
 class ChartObject {
   constructor() {
@@ -95,80 +119,23 @@ const cfg = {
   }
 };
 
-VSApi.fetchAPI({
-  method: 'GET',
-  url: 'js/todd.json',
-  // url: 'http://quantified-self-api.azurewebsites.net/api/Data',
-  // authorization: `Bearer ${auth[0][auth['user']]}`
-}).then(res => {
-  if (res.status === 401) {
-    logOut();
-  } else if (res.ok) {
-    res.json().then(res => {
-      sessionData = res;
-      let optionsData = {};
-      let date = [];
-
-      sessionData.forEach(data => {
-        Object.keys(data).forEach(key => {
-          if (key !== 'date') {
-            if (typeof optionsData[key] === 'undefined') {
-              optionsData[key] = [];
-            }
-            optionsData[key].push(parseFloat(typeof data[key] === 'string' ? data[key].replace(',', '.') : data[key]))
-          } else {
-            date.push(data[key]);
-          }
-        });
-      });
-
-      Object.keys(sessionData[0]).forEach((key, i) => {
-        if (key !== 'date') {
-          options[key] = {
-            label: key,
-            borderColor: ['rgba(240,240,240,1)'],
-            labelString: key,
-            pointRadius: 5,
-            dataLabels: date,
-            data: optionsData[key]
-          }
-          if (i % 3 === 0) {
-            options[key].backgroundColor = ['rgba(255, 128, 0, 1)'];
-          } else if (i % 3 === 1) {
-            options[key].backgroundColor = ['rgba(0, 255, 128, 1)'];
-          } else if (i % 3 === 2) {
-            options[key].backgroundColor = ['rgba(128, 0, 255, 1)'];
-          }
-        }
-      });
-
-      curObj = new ChartObject(initChart(options['steps']))
-    });
-  } else {
-    res.json().then(res => {
-      M.toast({ html: res });
-    });
-  }
-});
-
-// loading screen on load
 window.onload = () => {
   navLinks.forEach(nav => {
     nav.addEventListener('click', (e) => {
-      if (e.target.classList !== null && typeof options[e.target.classList] !== 'undefined') {
-        options[e.target.classList].label = e.target.textContent;
-        options[e.target.classList].labelString = e.target.textContent;
-        curObj = new ChartObject(initChart(options[e.target.classList]));
-        console.log(options[e.target.classList]);
-        
+      if (e.target.classList.length === 1 && typeof dictionary[e.target.classList.value] !== 'undefined') {
+        if (typeof holdData[e.target.classList] === 'undefined') {
+          getData(e.target.classList);
+        } else {
+
+        }
       }
     });
   });
 
   document.querySelector('.logout').addEventListener('click', logOut);
-};
 
-console.log(parseFloat('22687'.replace(',', '.')));
+  getData();
+};
 
 // logout
 function logOut() {
@@ -182,7 +149,7 @@ function logOut() {
 
 // random number
 function randomNumber(min, max) {
-  return Math.random() * (max - min) + min;
+  return parseInt(Math.random() * (max - min) + min);
 }
 
 // get random data
@@ -208,18 +175,18 @@ function days(num) {
 }
 
 function lastNDays(num, dateFormat) {
-  return days(num).split(',').map((n) => {
-    let d = new Date();
-    d.setDate(d.getDate() - n);
-    d.setHours(01,00,00);
-    d = new Date(d).toISOString();
-    return d;
+  // return days(num).split(',').map((n) => {
+  //   let d = new Date();
+  //   d.setDate(d.getDate() - n);
+  //   d.setHours(01,00,00);
+  //   d = new Date(d).toISOString();
+  //   return d;
     
-    // return ((day, month, year) => { return [day<10 ? '0'+day : day, month<10 ? '0'+month : month, year].join('/'); })(d.getDate(), d.getMonth()+1, d.getFullYear());
-  });
+  //   // return ((day, month, year) => { return [day<10 ? '0'+day : day, month<10 ? '0'+month : month, year].join('/'); })(d.getDate(), d.getMonth()+1, d.getFullYear());
+  // });
 }
 
-function initChart(obj) {
+function initChartObject(obj) {
   cfg.data.datasets[0].label = obj.label;
   cfg.data.datasets[0].backgroundColor = obj.backgroundColor;
   cfg.data.datasets[0].borderColor = obj.borderColor;
@@ -241,3 +208,59 @@ function initChart(obj) {
   return obj;
 }
 
+function initChart(variableToGet, rowsToExpect) {
+  options = {
+    label: dictionary[variableToGet],
+    borderColor: ['rgba(240,240,240,1)'],
+    labelString: variableToGet,
+    pointRadius: 5,
+    dataLabels: holdData[variableToGet][rowsToExpect]['date'],
+    data: holdData[variableToGet][rowsToExpect]['optionsData']
+  }
+
+  let i = randomNumber(1, 3);
+  if (i % 3 === 0) {
+    options.backgroundColor = ['rgba(255, 128, 0, 1)'];
+  } else if (i % 3 === 1) {
+    options.backgroundColor = ['rgba(0, 255, 128, 1)'];
+  } else if (i % 3 === 2) {
+    options.backgroundColor = ['rgba(128, 0, 255, 1)'];
+  }
+
+  curObj = new ChartObject(initChartObject(options));
+}
+
+function getData(variableToGet = 'calories', rowsToExpect = 20) {
+  if (typeof holdData[variableToGet] === 'undefined' || typeof holdData[variableToGet][rowsToExpect] === 'undefined') {
+    VSApi.fetchAPI({
+      method: 'GET',
+      // url: 'js/todd.json',
+      url: `http://quantified-self-api.azurewebsites.net/api/Data?rowsToExpect=${rowsToExpect}&variableToGet=${variableToGet}`,
+      authorization: `Bearer ${auth[0][auth['user']]}`
+    }).then(res => {
+      if (res.status === 401) {
+        logOut();
+      } else if (res.status === 200) {
+        res.json().then(res => {
+          holdData[variableToGet] = {};
+          holdData[variableToGet][rowsToExpect] = {};
+          holdData[variableToGet][rowsToExpect]['date'] = [];
+          holdData[variableToGet][rowsToExpect]['optionsData'] = [];
+
+          res.forEach(data => {
+            holdData[variableToGet][rowsToExpect]['date'].push(Date.parse(data.requestedVariable_Date));
+            holdData[variableToGet][rowsToExpect]['optionsData'].push(data.requestedVariable_Value);
+          });
+          
+          initChart(variableToGet, rowsToExpect);
+        });
+      } else {
+        res.json().then(res => {
+          console.alert(res);
+        });
+      }
+    });
+  } else {
+    initChart(variableToGet, rowsToExpect);
+  }
+}
