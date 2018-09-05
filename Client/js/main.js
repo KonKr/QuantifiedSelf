@@ -65,68 +65,22 @@ const dateFormat = 'DD MMMM';
 let myChart;
 
 const chart = document.querySelector('#myChart');
-const cfg = {
-  type: 'line',
-  data: {
-    // labels: labels,
-    datasets: [{
-      // label: 'Heart Rate',
-      // data: data,
-      pointRadius: 5,
-      // backgroundColor: [
-      //   'rgba(255, 128, 0, 1)'
-      // ],
-      borderWidth: 2,
-      // borderColor: [
-      //   'rgba(240,240,240,1)',
-      //   // 'rgba(54, 162, 235, 1)',
-      //   // 'rgba(255, 206, 86, 1)',
-      //   // 'rgba(75, 192, 192, 1)',
-      //   // 'rgba(153, 102, 255, 1)',
-      //   // 'rgba(255, 159, 64, 1)'
-      // ],
-      lineTension: 0.17,
-      layout: {
-        padding: 5
-      },
-      spanGaps: true,
-    }]
-  },
-  options: {
-    scales: {
-      xAxes: [{
-        type: 'time',
-        distribution: 'series',
-        // ticks: {
-        //   source: 'labels'
-        // }
-      }],
-      yAxes: [{
-        scaleLabel: {
-          display: true,
-          labelString: 'Heart Rate (bpm)',
-          stacked: false
-        },
-        ticks: {
-          min: 0,
-          max: 100
-        }
-      }]
-    },
-    // legend: {
-    //   reverse: true
-    // }
-  }
-};
 
 window.onload = () => {
   navLinks.forEach(nav => {
     nav.addEventListener('click', (e) => {
-      if (e.target.classList.length === 1 && typeof dictionary[e.target.classList.value] !== 'undefined') {
-        if (typeof holdData[e.target.classList] === 'undefined') {
-          getData(e.target.classList);
-        } else {
-
+      if (e.target.classList.length === 1 &&
+        (e.target.classList.value === 'graph' || e.target.classList.value === 'setupTime') &&
+        (e.target.hasAttribute('data-name') || e.target.hasAttribute('data-id'))) {
+        if (e.target.classList.value === 'graph' && e.target.hasAttribute('data-name')) {
+          if (typeof dictionary[e.target.getAttribute('data-name')] !== 'undefined') {
+            if (typeof holdData[e.target.getAttribute('data-name')] === 'undefined') {
+              getData(e.target.getAttribute('data-name'));
+            }
+          }
+        } else if (e.target.classList.value === 'setupTime' && e.target.hasAttribute('data-id')) {
+          VSLocalStorage.edit('Logs', 'rowsToExpect', parseInt(e.target.getAttribute('data-id')));
+          getData();
         }
       }
     });
@@ -186,51 +140,106 @@ function lastNDays(num, dateFormat) {
   // });
 }
 
-function initChartObject(obj) {
-  cfg.data.datasets[0].label = obj.label;
-  cfg.data.datasets[0].backgroundColor = obj.backgroundColor;
-  cfg.data.datasets[0].borderColor = obj.borderColor;
-  cfg.options.scales.yAxes[0].scaleLabel.labelString = obj.labelString;
-  cfg.options.scales.yAxes[0].ticks.min = obj.ticksMin;
-  cfg.options.scales.yAxes[0].ticks.max = obj.ticksMax;
-  cfg.data.datasets[0].pointRadius = obj.pointRadius;
-
-  // cfg.data.labels = lastNDays(obj.total, dateFormat);
-  // cfg.data.datasets[0].data = randData(obj.minNum, obj.maxNum, obj.total);
-  cfg.data.labels = obj.dataLabels;
-  cfg.data.datasets[0].data = obj.data;
-
+function initChartObject(opt) {
   if (typeof myChart !== 'undefined') {
     myChart.destroy();
   }
+
+  let cfg = {
+    type: 'line',
+    data: {
+      labels: opt.dataLabels
+    }
+  };
+  
+  cfg.data.datasets = [];
+  cfg.options = {};
+  cfg.options.scales = {};
+  cfg.options.scales.xAxes = [];
+  cfg.options.scales.yAxes = [];
+  cfg.options.scales.xAxes.push({});
+  cfg.options.scales.yAxes.push({});
+  
+  opt.data.forEach(d => {
+    d.forEach((obj, i) => {
+      cfg.data.datasets.push({});
+      cfg.data.datasets[i].label = opt.label[i];
+      cfg.data.datasets[i].backgroundColor = opt.backgroundColor[i];
+      cfg.data.datasets[i].borderColor = opt.borderColor[i];
+      cfg.data.datasets[i].pointRadius = opt.pointRadius;
+      cfg.data.datasets[i].borderWidth = 2;
+      cfg.data.datasets[i].lineTension = 0.17;
+      cfg.data.datasets[i].spanGaps = false;
+      cfg.data.datasets[i].layout = {};
+      cfg.data.datasets[i].layout.padding = 5;
+      cfg.data.datasets[i].data = obj;
+      cfg.options.scales.xAxes[0].type = 'time';
+      cfg.options.scales.xAxes[0].distribution = 'series';
+      cfg.options.scales.yAxes[0].scaleLabel = {};
+      cfg.options.scales.yAxes[0].scaleLabel.labelString = opt.labelString;
+      cfg.options.scales.yAxes[0].scaleLabel.display = true;
+      cfg.options.scales.yAxes[0].scaleLabel.stacked = false;
+      cfg.options.scales.yAxes[0].ticks = {};
+      cfg.options.scales.yAxes[0].ticks.min = opt.ticksMin;
+      cfg.options.scales.yAxes[0].ticks.max = opt.ticksMax;
+      if (i) {
+        cfg.data.datasets[i].showLine = true;
+      } else {
+        cfg.data.datasets[i].showLine = false;
+      }
+    });
+  });
+  
   myChart = new Chart(chart, cfg);
 
-  return obj;
+  return arr;
 }
 
 function initChart(variableToGet, rowsToExpect) {
   options = {
-    label: dictionary[variableToGet],
-    borderColor: ['rgba(240,240,240,1)'],
+    label: [
+      dictionary[variableToGet] + ' with anomaly detected',
+      dictionary[variableToGet],
+    ],
+    borderColor: [
+      ['rgba(255,0,0,1)'],
+      ['rgba(240,240,240,1)'],
+    ],
     labelString: variableToGet,
     pointRadius: 5,
     dataLabels: holdData[variableToGet][rowsToExpect]['date'],
-    data: holdData[variableToGet][rowsToExpect]['optionsData']
+    data: [
+      [
+        holdData[variableToGet][rowsToExpect]['optionsData']['wAnomaly'],
+        holdData[variableToGet][rowsToExpect]['optionsData']['woAnomaly'],
+      ]
+    ]
   }
 
   let i = randomNumber(1, 3);
+  options.backgroundColor = [];
+  options.backgroundColor.push(['rgba(0, 0, 0, 0)']);
   if (i % 3 === 0) {
-    options.backgroundColor = ['rgba(255, 128, 0, 1)'];
+    options.backgroundColor.push(['rgba(255, 128, 0, 1)']);
   } else if (i % 3 === 1) {
-    options.backgroundColor = ['rgba(0, 255, 128, 1)'];
+    options.backgroundColor.push(['rgba(0, 255, 128, 1)']);
   } else if (i % 3 === 2) {
-    options.backgroundColor = ['rgba(128, 0, 255, 1)'];
+    options.backgroundColor.push(['rgba(128, 0, 255, 1)']);
   }
 
   curObj = new ChartObject(initChartObject(options));
 }
 
-function getData(variableToGet = 'calories', rowsToExpect = 20) {
+function getData(variableToGet = 'calories') {
+  let rowsToExpect = 20;
+  if (VSLocalStorage.find('Logs', 'rowsToExpect')) {
+    rowsToExpect = VSLocalStorage.find('Logs', 'rowsToExpect');
+    rowsToExpect = rowsToExpect.rowsToExpect;
+  } else {
+    VSLocalStorage.add('Logs', { 'rowsToExpect': rowsToExpect });
+  }
+  console.log(rowsToExpect);
+
   if (typeof holdData[variableToGet] === 'undefined' || typeof holdData[variableToGet][rowsToExpect] === 'undefined') {
     VSApi.fetchAPI({
       method: 'GET',
@@ -246,10 +255,18 @@ function getData(variableToGet = 'calories', rowsToExpect = 20) {
           holdData[variableToGet][rowsToExpect] = {};
           holdData[variableToGet][rowsToExpect]['date'] = [];
           holdData[variableToGet][rowsToExpect]['optionsData'] = [];
+          holdData[variableToGet][rowsToExpect]['optionsData']['wAnomaly'] = [];
+          holdData[variableToGet][rowsToExpect]['optionsData']['woAnomaly'] = [];
 
           res.forEach(data => {
             holdData[variableToGet][rowsToExpect]['date'].push(Date.parse(data.requestedVariable_Date));
-            holdData[variableToGet][rowsToExpect]['optionsData'].push(data.requestedVariable_Value);
+            if (data.anomalyDetected) {
+              holdData[variableToGet][rowsToExpect]['optionsData']['wAnomaly'].push(data.requestedVariable_Value);
+              holdData[variableToGet][rowsToExpect]['optionsData']['woAnomaly'].push(data.requestedVariable_Value);
+            } else {
+              holdData[variableToGet][rowsToExpect]['optionsData']['woAnomaly'].push(data.requestedVariable_Value);
+              holdData[variableToGet][rowsToExpect]['optionsData']['wAnomaly'].push(null);
+            }
           });
           
           initChart(variableToGet, rowsToExpect);

@@ -5,7 +5,7 @@
  * VSLocalStorage: interacting w/ LS
  * VSApi: api functions
  * 
- * @version 18.07.31
+ * @version 18.09.5
  * @author Vassilis Stamoulos
  * @license MIT
  */
@@ -39,8 +39,11 @@ VSFunUI.addToLi(object, delElement = false, materialize = false): document appen
                               VSFilter (the elements that toggle show/hide)
 
 VSLocalStorage.get(item): return LS item
+               find(lsItem, key): finds key in a specific LS Item else returns false
                add(lsItem, item): set LS item
+               edit(lsItem, key, value): finds key, then edits the value
                remove(lsItem, key, val): remove LS item
+               clear(lsItem): clears entire LS item
                display(funcName, lsItem): for a function name document append items
 
 VSApi.error(request, status = '', print = ''): logs, document append
@@ -226,13 +229,18 @@ class VSLocalStorage {
     });
     return found;
   }
-
   static add(lsItem, item) {
     const lsItems = this.get(lsItem);
     lsItems.push(item);
     localStorage.setItem(lsItem, JSON.stringify(lsItems));
   }
-
+  static edit(lsItem, key, value) {
+    const item = this.find(lsItem, key);
+    if (item) {
+      this.remove(lsItem, key);
+      this.add(lsItem, {[key]: value})
+    }
+  }
   static remove(lsItem, key) {
     const lsItems = this.get(lsItem);
     lsItems.forEach((item, index) => {
@@ -242,12 +250,10 @@ class VSLocalStorage {
     });
     localStorage.setItem(lsItem, JSON.stringify(lsItems));
   }
-
   static clear(lsItem) {
     let lsItems = [];
     localStorage.setItem(lsItem, JSON.stringify(lsItems));
   }
-
   static display(funcName, lsItem) {
     const lsItems = this.get(lsItem);
     let options = Array.from(arguments);
