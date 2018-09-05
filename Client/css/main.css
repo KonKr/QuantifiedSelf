@@ -140,3 +140,18 @@ main {
   font-size: 90%;
   font-style: italic;
 }
+
+#spinner {
+  display: none;
+  width: 40px;
+  height: 40px;
+  position: absolute;
+  top: 50%;
+  left: 60%;
+  margin-top: -20px;
+  margin-left: -20px;
+  border: solid 3px;
+  border-color: #555 #fff;
+  -webkit-border-radius: 1000px;
+  border-radius: 1000px;
+}

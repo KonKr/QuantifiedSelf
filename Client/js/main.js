@@ -50,8 +50,6 @@ let refreshInterval = '';
 
 window.onload = () => {
   nav.addEventListener('click', (e) => {
-    console.log(e.target);
-    
     if (e.target.classList.length === 1 &&
       (e.target.classList.value === 'graph' || e.target.classList.value === 'setupTime') &&
       (e.target.hasAttribute('data-name') || e.target.hasAttribute('data-id'))) {
