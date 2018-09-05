@@ -38,34 +38,32 @@ class ChartObject {
   }
 }
 
-// const loader = document.querySelector('.loader');
 const main = document.querySelector('#main');
-const navLinks = document.querySelectorAll('.menu a');
-// const fixedBtn = document.querySelector('#fxBtn').childNodes;
+const nav = document.querySelector('#offCanvas');
 const dateFormat = 'DD MMMM';
 
 let myChart;
 
 const chart = document.querySelector('#myChart');
+const spinner = document.querySelector('#spinner');
+let refreshInterval = '';
 
 window.onload = () => {
-  navLinks.forEach(nav => {
-    nav.addEventListener('click', (e) => {
-      if (e.target.classList.length === 1 &&
-        (e.target.classList.value === 'graph' || e.target.classList.value === 'setupTime') &&
-        (e.target.hasAttribute('data-name') || e.target.hasAttribute('data-id'))) {
-        if (e.target.classList.value === 'graph' && e.target.hasAttribute('data-name')) {
-          if (typeof dictionary[e.target.getAttribute('data-name')] !== 'undefined') {
-            if (typeof holdData[e.target.getAttribute('data-name')] === 'undefined') {
-              getData(e.target.getAttribute('data-name'));
-            }
-          }
-        } else if (e.target.classList.value === 'setupTime' && e.target.hasAttribute('data-id')) {
-          VSLocalStorage.edit('Logs', 'rowsToExpect', parseInt(e.target.getAttribute('data-id')));
-          getData();
+  nav.addEventListener('click', (e) => {
+    console.log(e.target);
+    
+    if (e.target.classList.length === 1 &&
+      (e.target.classList.value === 'graph' || e.target.classList.value === 'setupTime') &&
+      (e.target.hasAttribute('data-name') || e.target.hasAttribute('data-id'))) {
+      if (e.target.classList.value === 'graph' && e.target.hasAttribute('data-name')) {
+        if (typeof dictionary[e.target.getAttribute('data-name')] !== 'undefined') {
+          getData(e.target.getAttribute('data-name'));
         }
+      } else if (e.target.classList.value === 'setupTime' && e.target.hasAttribute('data-id')) {
+        VSLocalStorage.edit('Logs', 'rowsToExpect', parseInt(e.target.getAttribute('data-id')));
+        getData();
       }
-    });
+    }
   });
 
   document.querySelector('.logout').addEventListener('click', logOut);
@@ -83,50 +81,19 @@ function logOut() {
   }
 }
 
-// random number
-function randomNumber(min, max) {
-  return parseInt(Math.random() * (max - min) + min);
+function destroyLoader() {
+  clearInterval(refreshInterval);
+  spinner.style.display = 'none';
 }
-
-// get random data
-function randData(min, max, index) {
-  let arr = [];
-  for (let i=0; i<index; i++) {
-    arr.push(randomNumber(min, max));
+function setLoader() {
+  spinner.style.display = 'block';
+  if (!VSFun.errorNum(refreshInterval, 0, 9999999)) {
+    destroyLoader();
   }
-  return arr;
-}
-
-// get days
-function days(num) {
-  let str = '';
-  for (let i = 0; i < num; i++) {
-    if (i < 10)
-      str += String('0'+i);
-    else
-      str += String(i);
-    i+1 < num ? str += ',' : str += '';
-  }
-  return str;
-}
-
-function lastNDays(num, dateFormat) {
-  // return days(num).split(',').map((n) => {
-  //   let d = new Date();
-  //   d.setDate(d.getDate() - n);
-  //   d.setHours(01,00,00);
-  //   d = new Date(d).toISOString();
-  //   return d;
-    
-  //   // return ((day, month, year) => { return [day<10 ? '0'+day : day, month<10 ? '0'+month : month, year].join('/'); })(d.getDate(), d.getMonth()+1, d.getFullYear());
-  // });
+  refreshInterval = setInterval(() => MotionUI.animateIn(spinner, 'spinIn'), 850);
 }
 
 function initChartObject(opt) {
-  if (typeof myChart !== 'undefined') {
-    myChart.destroy();
-  }
-
   let cfg = {
     type: 'line',
     data: {
@@ -141,7 +108,7 @@ function initChartObject(opt) {
   cfg.options.scales.yAxes = [];
   cfg.options.scales.xAxes.push({});
   cfg.options.scales.yAxes.push({});
-  
+
   opt.data.forEach(d => {
     d.forEach((obj, i) => {
       cfg.data.datasets.push({});
@@ -171,10 +138,10 @@ function initChartObject(opt) {
       }
     });
   });
-  
+
   myChart = new Chart(chart, cfg);
 
-  return arr;
+  return opt;
 }
 
 function initChart(variableToGet, rowsToExpect) {
@@ -198,11 +165,11 @@ function initChart(variableToGet, rowsToExpect) {
     ]
   }
 
-  let i = randomNumber(1, 3);
+  let i = VSFun.getRandomNum(0, 3);
   options.backgroundColor = [];
   options.backgroundColor.push(['rgba(0, 0, 0, 0)']);
   if (i % 3 === 0) {
-    options.backgroundColor.push(['rgba(255, 128, 0, 1)']);
+    options.backgroundColor.push(['rgba(0, 128, 255, 1)']);
   } else if (i % 3 === 1) {
     options.backgroundColor.push(['rgba(0, 255, 128, 1)']);
   } else if (i % 3 === 2) {
@@ -212,7 +179,33 @@ function initChart(variableToGet, rowsToExpect) {
   curObj = new ChartObject(initChartObject(options));
 }
 
+function initHoldData(res, variableToGet, rowsToExpect) {
+  holdData[variableToGet] = {};
+  holdData[variableToGet][rowsToExpect] = {};
+  holdData[variableToGet][rowsToExpect]['date'] = [];
+  holdData[variableToGet][rowsToExpect]['optionsData'] = [];
+  holdData[variableToGet][rowsToExpect]['optionsData']['wAnomaly'] = [];
+  holdData[variableToGet][rowsToExpect]['optionsData']['woAnomaly'] = [];
+
+  res.forEach(data => {
+    holdData[variableToGet][rowsToExpect]['date'].push(Date.parse(data.requestedVariable_Date));
+    if (data.anomalyDetected) {
+      holdData[variableToGet][rowsToExpect]['optionsData']['wAnomaly'].push(data.requestedVariable_Value);
+      holdData[variableToGet][rowsToExpect]['optionsData']['woAnomaly'].push(data.requestedVariable_Value);
+    } else {
+      holdData[variableToGet][rowsToExpect]['optionsData']['woAnomaly'].push(data.requestedVariable_Value);
+      holdData[variableToGet][rowsToExpect]['optionsData']['wAnomaly'].push(null);
+    }
+  });
+}
+
 function getData(variableToGet = 'calories') {
+  if (typeof myChart !== 'undefined') {
+    myChart.destroy();
+  }
+
+  setLoader();
+  
   let rowsToExpect = 20;
   if (VSLocalStorage.find('Logs', 'rowsToExpect')) {
     rowsToExpect = VSLocalStorage.find('Logs', 'rowsToExpect');
@@ -231,33 +224,21 @@ function getData(variableToGet = 'calories') {
         logOut();
       } else if (res.status === 200) {
         res.json().then(res => {
-          holdData[variableToGet] = {};
-          holdData[variableToGet][rowsToExpect] = {};
-          holdData[variableToGet][rowsToExpect]['date'] = [];
-          holdData[variableToGet][rowsToExpect]['optionsData'] = [];
-          holdData[variableToGet][rowsToExpect]['optionsData']['wAnomaly'] = [];
-          holdData[variableToGet][rowsToExpect]['optionsData']['woAnomaly'] = [];
-
-          res.forEach(data => {
-            holdData[variableToGet][rowsToExpect]['date'].push(Date.parse(data.requestedVariable_Date));
-            if (data.anomalyDetected) {
-              holdData[variableToGet][rowsToExpect]['optionsData']['wAnomaly'].push(data.requestedVariable_Value);
-              holdData[variableToGet][rowsToExpect]['optionsData']['woAnomaly'].push(data.requestedVariable_Value);
-            } else {
-              holdData[variableToGet][rowsToExpect]['optionsData']['woAnomaly'].push(data.requestedVariable_Value);
-              holdData[variableToGet][rowsToExpect]['optionsData']['wAnomaly'].push(null);
-            }
-          });
-          
+          initHoldData(res, variableToGet, rowsToExpect);
           initChart(variableToGet, rowsToExpect);
+          destroyLoader();
+        }).catch(res => {
+          console.log(res);
+          
         });
       } else {
         res.json().then(res => {
-          console.alert(res);
+          console.warning(res);
         });
       }
     });
   } else {
     initChart(variableToGet, rowsToExpect);
+    destroyLoader();
   }
 }
