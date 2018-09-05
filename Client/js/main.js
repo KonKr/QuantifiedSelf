@@ -1,21 +1,3 @@
-// // fetch post data
-// let user = {
-//   Username: "Ben",
-//   Password: "pass"
-// }
-// fetch('http://thleiatrikh.azurewebsites.net/api/GetUser', {
-//   body: JSON.stringify(user),
-//   headers: new Headers({
-//     'Authorization': 'Basic ' + btoa(token),
-//     'content-type': 'application/json'
-//   }),
-//   method: 'POST'
-// })
-// .then(response => response.json())
-// .then(data => {
-//   console.log(data);
-// });
-
 'use strict';
 
 $(document).foundation();
