@@ -238,12 +238,10 @@ function getData(variableToGet = 'calories') {
   } else {
     VSLocalStorage.add('Logs', { 'rowsToExpect': rowsToExpect });
   }
-  console.log(rowsToExpect);
 
   if (typeof holdData[variableToGet] === 'undefined' || typeof holdData[variableToGet][rowsToExpect] === 'undefined') {
     VSApi.fetchAPI({
       method: 'GET',
-      // url: 'js/todd.json',
       url: `http://quantified-self-api.azurewebsites.net/api/Data?rowsToExpect=${rowsToExpect}&variableToGet=${variableToGet}`,
       authorization: `Bearer ${auth[0][auth['user']]}`
     }).then(res => {
