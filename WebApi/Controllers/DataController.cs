@@ -31,20 +31,33 @@ namespace WebApi.Controllers
         [HttpGet]
         public IActionResult GetData(int rowsToExpect, string variableToGet)
         {
-            //Retrieve data from database for a specific variable, and to be returned with a number of rows...
-            var db_data = repo.GetDataFromDbForGivenVariable(rowsToExpect, variableToGet);
+            try
+            {
+                if (rowsToExpect >=12)//requirement for anomaly identifier...
+                {
+                    //Retrieve data from database for a specific variable, and to be returned with a number of rows...
+                    var db_data = repo.GetDataFromDbForGivenVariable(rowsToExpect, variableToGet);
 
-            //Convert data to be compatible with Azure Anomaly identifier api...
-            var normalized_data = repo.NormalizeDataForAAI(db_data);
+                    //Convert data to be compatible with Azure Anomaly identifier api...
+                    var normalized_data = repo.NormalizeDataForAAI(db_data);
 
-            //Analyze data with the Azure Anomaly Identifier Api...
-            var analysis_data = aiService.AnalyzeData(normalized_data);
+                    //Analyze data with the Azure Anomaly Identifier Api...
+                    var analysis_data = aiService.AnalyzeData(normalized_data);
 
-            //Create data to return...
-            var res = repo.GenerateDataForGraph(analysis_data.Result, db_data);
+                    //Create data to return...
+                    var res = repo.GenerateDataForGraph(analysis_data.Result, db_data);
 
-            return Ok(res);
-
+                    return Ok(res);
+                }
+                else
+                {
+                    return BadRequest("rowsToExpect must be equal or greater than 12.");
+                }                
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500);
+            }            
         }      
 
         
