@@ -46,6 +46,10 @@ body {
 .spinner-layer {
   border-color: #0080ff !important;
 }
+.loginLoader {
+  margin-top: 45%;
+  position: relative;
+}
 
 nav, .off-canvas, .title-bar, .accordion, .accordion-title:hover, .accordion-title:focus, .accordion-content {
   background-color: #ff8000;

@@ -1,4 +1,5 @@
-const loader = document.querySelector('.loader');
+const loader = document.querySelector('.mainLoader');
+const loginloader = document.querySelector('.loginLoader');
 const main = document.getElementsByTagName('main')[0];
 const form = document.querySelector('form');
 const email = document.querySelector('input[id="email"]');
@@ -6,6 +7,7 @@ const password = document.querySelector('input[id="password"]');
 const submit = document.querySelector('input[type="submit"]');
 
 window.onload = () => {
+  loginloader.style.display = 'none';
   loader.classList.add('fade');
   main.setAttribute('style', 'display: flex !important');
   window.setTimeout(() => loader.remove(), 1000);
@@ -28,6 +30,8 @@ function submitForm(e) {
   if (email === null || VSFun.errorString(email.value, /^[\w.-]+@[\w.-]+\.[A-Za-z]{2,6}$/) || password === null || password.value === '') {
     return 0;
   }
+  loginloader.style.display = 'block';
+  form.parentElement.parentElement.style.display = 'none';
   
   VSApi.fetchAPI({
     method: 'POST',
@@ -37,7 +41,6 @@ function submitForm(e) {
     data: {
       'Email': email.value,
       'Password': password.value
-      // 'Password': btoa('asdf:' + password.value + ':asdf')
     },
     getFullResponse: true
   }).then(res => {
