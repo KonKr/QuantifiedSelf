@@ -204,7 +204,7 @@ function getData(variableToGet = 'calories') {
 
   setLoader();
   
-  let rowsToExpect = 20;
+  let rowsToExpect = 12;
   if (VSLocalStorage.find('Logs', 'rowsToExpect')) {
     rowsToExpect = VSLocalStorage.find('Logs', 'rowsToExpect');
     rowsToExpect = rowsToExpect.rowsToExpect;
@@ -233,6 +233,7 @@ function getData(variableToGet = 'calories') {
         res.json().then(res => {
           console.warning(res);
         });
+        setTimeout(() => logOut(), 3000);
       }
     });
   } else {
