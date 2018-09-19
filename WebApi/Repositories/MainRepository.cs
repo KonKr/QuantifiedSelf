@@ -215,6 +215,204 @@ namespace WebApi.Repositories
             }
         }
 
+        public List<DbDataRetrievalInstance_Model> GetDataFromDbForGivenVariable_TimePeriod(string variableToGet, DateTime dateToStart_Date, DateTime dateToFinish_Date)
+        {
+            try
+            {
+                switch (variableToGet.ToLower())
+                {
+                    case "calories":
+                        return db.FitBitData
+                                    .Where(w=>w.Date >= dateToStart_Date && w.Date <= dateToFinish_Date)
+                                    .Select(s => new DbDataRetrievalInstance_Model
+                                    {
+                                        instanceDate = s.Date,
+                                        instanceVariableValue = Convert.ToDouble(s.Calories)
+                                    })
+                                    .ToList();
+                    case "steps":
+                        return db.FitBitData
+                                    .Where(w=>w.Date >= dateToStart_Date && w.Date <= dateToFinish_Date)
+                                    .Select(s => new DbDataRetrievalInstance_Model
+                                    {
+                                        instanceDate = s.Date,
+                                        instanceVariableValue = Convert.ToDouble(s.Steps)
+                                    })
+                                    .ToList();
+                    case "distance":
+                        return db.FitBitData
+                                    .Where(w=>w.Date >= dateToStart_Date && w.Date <= dateToFinish_Date)
+                                    .Select(s => new DbDataRetrievalInstance_Model
+                                    {
+                                        instanceDate = s.Date,
+                                        instanceVariableValue = Convert.ToDouble(s.Distance, CultureInfo.GetCultureInfo("de-DE").NumberFormat)
+                                    })
+                                    .ToList();
+                    case "floors":
+                        return db.FitBitData
+                                    .Where(w=>w.Date >= dateToStart_Date && w.Date <= dateToFinish_Date)
+                                    .Select(s => new DbDataRetrievalInstance_Model
+                                    {
+                                        instanceDate = s.Date,
+                                        instanceVariableValue = Convert.ToDouble(s.Floors)
+                                    })
+                                    .ToList();
+                    case "elevation":
+                        return db.FitBitData
+                                    .Where(w => w.Date >= dateToStart_Date && w.Date <= dateToFinish_Date)
+                                    .Select(s => new DbDataRetrievalInstance_Model
+                                    {
+                                        instanceDate = s.Date,
+                                        instanceVariableValue = Convert.ToDouble(s.Elevation)
+                                    })
+                                    .ToList();
+                    case "minutessedentary":
+                        return db.FitBitData
+                                    .Where(w => w.Date >= dateToStart_Date && w.Date <= dateToFinish_Date)
+                                    .Select(s => new DbDataRetrievalInstance_Model
+                                    {
+                                        instanceDate = s.Date,
+                                        instanceVariableValue = Convert.ToDouble(s.MinutesSedentary)
+                                    })
+                                    .ToList();
+                    case "minuteslightlyctive":
+                        return db.FitBitData
+                                    .Where(w => w.Date >= dateToStart_Date && w.Date <= dateToFinish_Date)
+                                    .Select(s => new DbDataRetrievalInstance_Model
+                                    {
+                                        instanceDate = s.Date,
+                                        instanceVariableValue = Convert.ToDouble(s.MinutesLightlyActive)
+                                    })
+                                    .ToList();
+                    case "minutesfairlyactive":
+                        return db.FitBitData
+                                    .Where(w => w.Date >= dateToStart_Date && w.Date <= dateToFinish_Date)
+                                    .Select(s => new DbDataRetrievalInstance_Model
+                                    {
+                                        instanceDate = s.Date,
+                                        instanceVariableValue = Convert.ToDouble(s.MinutesFairlyActive)
+                                    })
+                                    .ToList();
+                    case "minutesveryactive":
+                        return db.FitBitData
+                                    .Where(w => w.Date >= dateToStart_Date && w.Date <= dateToFinish_Date)
+                                    .Select(s => new DbDataRetrievalInstance_Model
+                                    {
+                                        instanceDate = s.Date,
+                                        instanceVariableValue = Convert.ToDouble(s.MinutesVeryActive)
+                                    })
+                                    .ToList();
+                    case "starttime":
+                        return db.FitBitData
+                                    .Where(w => w.Date >= dateToStart_Date && w.Date <= dateToFinish_Date)
+                                    .Select(s => new DbDataRetrievalInstance_Model
+                                    {
+                                        instanceDate = s.Date,
+                                        instanceVariableValue = Convert.ToDouble(s.StartTime, CultureInfo.GetCultureInfo("de-DE").NumberFormat)
+                                    })
+                                    .ToList();
+                    case "timeinbed":
+                        return db.FitBitData
+                                    .Where(w => w.Date >= dateToStart_Date && w.Date <= dateToFinish_Date)
+                                    .Select(s => new DbDataRetrievalInstance_Model
+                                    {
+                                        instanceDate = s.Date,
+                                        instanceVariableValue = Convert.ToDouble(s.TimeInBed)
+                                    })
+                                    .ToList();
+                    case "minutesasleep":
+                        return db.FitBitData
+                                    .Where(w => w.Date >= dateToStart_Date && w.Date <= dateToFinish_Date)
+                                    .Select(s => new DbDataRetrievalInstance_Model
+                                    {
+                                        instanceDate = s.Date,
+                                        instanceVariableValue = Convert.ToDouble(s.MinutesAsleep)
+                                    })
+                                    .ToList();
+                    case "awakeningscount":
+                        return db.FitBitData
+                                    .Where(w => w.Date >= dateToStart_Date && w.Date <= dateToFinish_Date)
+                                    .Select(s => new DbDataRetrievalInstance_Model
+                                    {
+                                        instanceDate = s.Date,
+                                        instanceVariableValue = Convert.ToDouble(s.AwakeningsCount)
+                                    })
+                                    .ToList();
+                    case "minutesawake":
+                        return db.FitBitData
+                                    .Where(w => w.Date >= dateToStart_Date && w.Date <= dateToFinish_Date)
+                                    .Select(s => new DbDataRetrievalInstance_Model
+                                    {
+                                        instanceDate = s.Date,
+                                        instanceVariableValue = Convert.ToDouble(s.MinutesAwake)
+                                    })
+                                    .ToList();
+                    case "minutestofallasleep":
+                        return db.FitBitData
+                                    .Where(w => w.Date >= dateToStart_Date && w.Date <= dateToFinish_Date)
+                                    .Select(s => new DbDataRetrievalInstance_Model
+                                    {
+                                        instanceDate = s.Date,
+                                        instanceVariableValue = Convert.ToDouble(s.MinutesToFallAsleep)
+                                    })
+                                    .ToList();
+                    case "minutesafterwakeup":
+                        return db.FitBitData
+                                    .Where(w => w.Date >= dateToStart_Date && w.Date <= dateToFinish_Date)
+                                    .Select(s => new DbDataRetrievalInstance_Model
+                                    {
+                                        instanceDate = s.Date,
+                                        instanceVariableValue = Convert.ToDouble(s.MinutesAfterWakeup)
+                                    }).ToList();
+                    case "efficiency":
+                        return db.FitBitData
+                                    .Where(w => w.Date >= dateToStart_Date && w.Date <= dateToFinish_Date)
+                                    .Select(s => new DbDataRetrievalInstance_Model
+                                    {
+                                        instanceDate = s.Date,
+                                        instanceVariableValue = Convert.ToDouble(s.Efficiency)
+                                    })
+                                    .ToList();
+                    case "weight":
+                        return db.FitBitData
+                                    .Where(w => w.Date >= dateToStart_Date && w.Date <= dateToFinish_Date)
+                                    .Select(s => new DbDataRetrievalInstance_Model
+                                    {
+                                        instanceDate = s.Date,
+                                        instanceVariableValue = Convert.ToDouble(s.Weight, CultureInfo.GetCultureInfo("de-DE").NumberFormat)
+                                    })
+                                    .ToList();
+                    case "bmi":
+                        return db.FitBitData
+                                    .Where(w => w.Date >= dateToStart_Date && w.Date <= dateToFinish_Date)
+                                    .Select(s => new DbDataRetrievalInstance_Model
+                                    {
+                                        instanceDate = s.Date,
+                                        instanceVariableValue = Convert.ToDouble(s.Bmi, CultureInfo.GetCultureInfo("de-DE").NumberFormat)
+                                    })
+                                    .ToList();
+                    case "fat":
+                        return db.FitBitData
+                                    .Where(w => w.Date >= dateToStart_Date && w.Date <= dateToFinish_Date)
+                                    .Select(s => new DbDataRetrievalInstance_Model
+                                    {
+                                        instanceDate = s.Date,
+                                        instanceVariableValue = Convert.ToDouble(s.Fat, CultureInfo.GetCultureInfo("de-DE").NumberFormat)
+                                    })
+                                    .ToList();
+
+
+                    //TODO: Add more select queries...
+                    default:
+                        throw new Exception("variableToGet is not defined properly");
+                }
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
+
         public Azure_AnomalyIdentifier_InputModel NormalizeDataForAAI(List<DbDataRetrievalInstance_Model> db_data)
         {
             try
