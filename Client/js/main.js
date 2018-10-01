@@ -40,12 +40,13 @@ class ChartObject {
 
 const main = document.querySelector('#main');
 const nav = document.querySelector('#offCanvas');
-const dateFormat = 'DD MMMM';
 
 let myChart;
 
 const chart = document.querySelector('#myChart');
 const spinner = document.querySelector('#spinner');
+const clearButton = document.querySelector('.clearButton');
+const saveButton = document.querySelector('.saveButton');
 let refreshInterval = '';
 
 window.onload = () => {
@@ -67,6 +68,31 @@ window.onload = () => {
   document.querySelector('.logout').addEventListener('click', logOut);
 
   getData();
+
+  $('#dp1').fdatepicker({
+    format: 'dd-mm-yyyy',
+    disableDblClickSelection: true,
+    leftArrow: '<<',
+    rightArrow: '>>',
+    closeIcon: 'X',
+    closeButton: true
+  });
+
+  $('#dp2').fdatepicker({
+    format: 'dd-mm-yyyy',
+    disableDblClickSelection: true,
+    leftArrow: '<<',
+    rightArrow: '>>',
+    closeButton: true
+  });
+
+  clearButton.addEventListener('click', () => {
+    $('#dp1').val('');
+    $('#dp2').val('');
+  });
+  saveButton.addEventListener('click', () => {
+    getData();
+  });
 };
 
 // logout
@@ -205,17 +231,30 @@ function getData(variableToGet = 'calories') {
   setLoader();
   
   let rowsToExpect = 12;
-  if (VSLocalStorage.find('Logs', 'rowsToExpect')) {
-    rowsToExpect = VSLocalStorage.find('Logs', 'rowsToExpect');
-    rowsToExpect = rowsToExpect.rowsToExpect;
+  let url = `http://quantified-self-api.azurewebsites.net/api/Data`;
+  let dateSpan = false;
+  if ($('#dp1').val() !== '' && $('#dp2').val() !== '') {
+    let from = $('#dp1').val();
+    let to = $('#dp2').val();
+
+    dateSpan = true;
+    url += `?variableToGet=${variableToGet}&dateToStart=${from}&dateToFinish=${to}`;
   } else {
-    VSLocalStorage.add('Logs', { 'rowsToExpect': rowsToExpect });
+    if (VSLocalStorage.find('Logs', 'rowsToExpect')) {
+      rowsToExpect = VSLocalStorage.find('Logs', 'rowsToExpect');
+      rowsToExpect = rowsToExpect.rowsToExpect;
+    } else {
+      VSLocalStorage.add('Logs', { 'rowsToExpect': rowsToExpect });
+    }
+
+    dateSpan = false;
+    url += `?rowsToExpect=${rowsToExpect}&variableToGet=${variableToGet}`;
   }
 
-  if (typeof holdData[variableToGet] === 'undefined' || typeof holdData[variableToGet][rowsToExpect] === 'undefined') {
+  if ((typeof holdData[variableToGet] === 'undefined' || typeof holdData[variableToGet][rowsToExpect] === 'undefined') || dateSpan) {
     VSApi.fetchAPI({
       method: 'GET',
-      url: `http://quantified-self-api.azurewebsites.net/api/Data?rowsToExpect=${rowsToExpect}&variableToGet=${variableToGet}`,
+      url: url,
       authorization: `Bearer ${auth[0][auth['user']]}`
     }).then(res => {
       if (res.status === 401) {
@@ -226,14 +265,13 @@ function getData(variableToGet = 'calories') {
           initChart(variableToGet, rowsToExpect);
           destroyLoader();
         }).catch(res => {
-          console.log(res);
-          
+          M.toast({ html: res, displayLength: 5000 });
         });
       } else {
         res.json().then(res => {
-          console.warning(res);
+          M.toast({ html: res, displayLength: 5000 });
         });
-        setTimeout(() => logOut(), 3000);
+        // setTimeout(() => logOut(), 3000);
       }
     });
   } else {

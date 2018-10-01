@@ -12,14 +12,21 @@
     <!-- Compiled and minified CSS -->
     <link rel="stylesheet" href="vendor/foundation/css/foundation.min.css">
     <link rel="stylesheet" href="vendor/foundation/css/motion-ui.min.css">
+    <link rel="stylesheet" href="vendor/foundation/css/foundation-datepicker.min.css">
     <!-- <link rel="stylesheet" href="animate.css"> -->
     <link rel="stylesheet" href="css/main.css">
+    <link href="https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
 
     <!-- Compiled and minified JavaScript -->
     <script src="vendor/jquery/jquery.js"></script>
     <script src="vendor/foundation/js/what-input.js"></script>
     <script src="vendor/foundation/js/foundation.min.js"></script>
+    <script src="vendor/foundation/js/foundation-datepicker.min.js"></script>
     <script src="vendor/chart.js/Chart.bundle.min.js"></script>
+
+    <!-- <link rel="stylesheet" href="vendor/materialize/css/materialize.min.css"> -->
+    <script src="vendor/materialize/js/materialize.min.js"></script>
+
     <script type="text/javascript" src="js/vs.js"></script>
     <script>
     const auth = VSLocalStorage.get('AuthToken');
@@ -126,6 +133,45 @@
               </li>
               <li>
                 <a href="#" class="setupTime" data-id="365">Show yearly</a>
+              </li>
+              <li>
+                <a href="#">Date span</a>
+                <ul class="menu vertical nested">
+                  <li>
+                    <div class="grid-container collapse date" id="dpMonths1" data-date-format="mm/yyyy" data-start-view="year" data-min-view="year"
+                      style="max-width:200px;">
+                      <div class="grid-x">
+                        <div class="cell small-4">
+                          <input type="text" disabled value="Start">
+                        </div>
+                        <div class="cell small-8">
+                          <input type="text" class="span2" id="dp1">
+                        </div>
+                      </div>
+                    </div>
+                  </li>
+                  <li>
+                    <div class="grid-container collapse date" id="dpMonths2" data-date-format="mm/yyyy" data-start-view="year" data-min-view="year"
+                      style="max-width:200px;">
+                      <div class="grid-x">
+                        <div class="cell small-4">
+                          <input type="text" disabled value="End">
+                        </div>
+                        <div class="cell small-8">
+                          <input type="text" class="span2" id="dp2">
+                        </div>
+                      </div>
+                      <div class="grid-x" style="margin-top: 1rem;">
+                        <div class="cell small-6">
+                          <button type="button" class="alert button clearButton">Clear</button>
+                        </div>
+                        <div class="cell small-6">
+                          <button type="button" class="success button saveButton">Save</button>
+                        </div>
+                      </div>
+                    </div>
+                  </li>
+                </ul>
               </li>
             </ul>
           </li>
