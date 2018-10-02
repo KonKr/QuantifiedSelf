@@ -275,7 +275,7 @@ namespace WebApi.Repositories
                                         instanceVariableValue = Convert.ToDouble(s.MinutesSedentary)
                                     })
                                     .ToList();
-                    case "minuteslightlyctive":
+                    case "minuteslightlyactive":
                         return db.FitBitData
                                     .Where(w => w.Date >= dateToStart_Date && w.Date <= dateToFinish_Date)
                                     .Select(s => new DbDataRetrievalInstance_Model
