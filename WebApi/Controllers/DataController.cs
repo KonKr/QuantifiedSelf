@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -40,8 +41,8 @@ namespace WebApi.Controllers
 
                 if (dateToStart != null && dateToFinish != null && rowsToExpect == null)//If time span mode is selected....
                 {
-                    dateToStart_Date = Convert.ToDateTime(dateToStart);
-                    dateToFinish_Date = Convert.ToDateTime(dateToFinish);
+                    dateToStart_Date = DateTime.ParseExact(dateToStart, "dd-MM-yyyy", new CultureInfo("el"));
+                    dateToFinish_Date = DateTime.ParseExact(dateToFinish, "dd-MM-yyyy", new CultureInfo("el"));
 
                     if (dateToStart_Date >= Convert.ToDateTime("2011-10-22") && dateToFinish_Date <= Convert.ToDateTime("2014-09-29"))
                     {
