@@ -454,7 +454,13 @@ namespace WebApi.Repositories
                         {
                             RequestedVariable_Date = db_data[i].instanceDate.ToString(),
                             RequestedVariable_Value = db_data[i].instanceVariableValue,
-                            AnomalyDetected = analysis_data.IsAnomaly[i]
+                            AnomalyDetected = analysis_data.IsAnomaly[i],
+                            ExpectedValue = analysis_data.ExpectedValue[i],
+                            AnomalyDetected_Neg = analysis_data.IsAnomaly_Neg[i],
+                            AnomalyDetected_Pos = analysis_data.IsAnomaly_Pos[i],
+                            LowerLimit = analysis_data.ExpectedValue[i] - analysis_data.LowerMargin[i],
+                            UpperLimit = analysis_data.ExpectedValue[i] + analysis_data.UpperMargin[i]
+
                         });
                     }
                     return outputModel;

@@ -10,5 +10,11 @@ namespace WebApi.Models
         public string RequestedVariable_Date { get; set; }
         public double RequestedVariable_Value { get; set; }
         public bool AnomalyDetected { get; set; }
+        public bool AnomalyDetected_Neg { get; set; }
+        public bool AnomalyDetected_Pos { get; set; }
+        public double ExpectedValue { get; set; }
+        public double UpperLimit { get; set; }
+        public double LowerLimit { get; set; }
+
     }
 }
