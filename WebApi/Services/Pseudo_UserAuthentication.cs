@@ -25,6 +25,12 @@ namespace WebApi.Services
                     var userEmail = _config["TestProfile_Info:User_Email"];
                     return new KeyValuePair<bool, string>(true, userEmail);
                 }
+                else if (credentials.Email == _config["MagkloProfile_Info:User_Email"] && credentials.Password == _config["MagkloProfile_Info:User_Password"]) 
+                {
+                    //Authentication Succesful. User Found, and returning true along with user's Id...
+                    var userEmail = _config["MagkloProfile_Info:User_Email"];
+                    return new KeyValuePair<bool, string>(true, userEmail);
+                }
                 else
                 {
                     //Authentication Faild. User Not Found Or Wrong Credentials were given. Returning false...
