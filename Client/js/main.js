@@ -4,7 +4,7 @@ $(document).foundation();
 
 let sessionData;
 let curObj;
-let options = {}, holdData = {};
+let options = {}, holdData = {}, dataLabel = [];
 let dictionary = {
   "steps": "Steps",
   "distance": "Distance",
@@ -136,6 +136,7 @@ function initChartObject(opt) {
   opt.data.forEach(d => {
     d.forEach((obj, i) => {
       cfg.data.datasets.push({});
+
       cfg.data.datasets[i].label = opt.label[i];
       cfg.data.datasets[i].backgroundColor = opt.backgroundColor[i];
       cfg.data.datasets[i].borderColor = opt.borderColor[i];
@@ -146,6 +147,11 @@ function initChartObject(opt) {
       cfg.data.datasets[i].layout = {};
       cfg.data.datasets[i].layout.padding = 5;
       cfg.data.datasets[i].data = obj;
+      if (i <= 1) {
+        cfg.data.datasets[i].fill = false;
+      } else {
+        cfg.data.datasets[i].fill = true;
+      }
       cfg.options.scales.xAxes[0].type = 'time';
       cfg.options.scales.xAxes[0].distribution = 'series';
       cfg.options.scales.yAxes[0].scaleLabel = {};
@@ -155,10 +161,17 @@ function initChartObject(opt) {
       cfg.options.scales.yAxes[0].ticks = {};
       cfg.options.scales.yAxes[0].ticks.min = opt.ticksMin;
       cfg.options.scales.yAxes[0].ticks.max = opt.ticksMax;
-      if (i) {
-        cfg.data.datasets[i].showLine = true;
-      } else {
+      if (i == 2) {
         cfg.data.datasets[i].showLine = false;
+        cfg.options.tooltips = {};
+        cfg.options.tooltips.mode = 'index';
+        cfg.options.tooltips.footerFontStyle = 'normal';
+        cfg.options.tooltips.callbacks = {};
+        cfg.options.tooltips.callbacks.footer = function (tooltipItems, data) {
+          return dataLabel[tooltipItems[2].index];
+        };
+      } else {
+        cfg.data.datasets[i].showLine = true;
       }
     });
   });
@@ -171,10 +184,14 @@ function initChartObject(opt) {
 function initChart(variableToGet, rowsToExpect) {
   options = {
     label: [
+      'Upper Bound',
+      'Lower Bound',
       dictionary[variableToGet] + ' with anomaly detected',
       dictionary[variableToGet],
     ],
     borderColor: [
+      ['rgba(53,53,53,0.5)'],
+      ['rgba(53,53,53,0.3)'],
       ['rgba(255,0,0,1)'],
       ['rgba(240,240,240,1)'],
     ],
@@ -183,6 +200,8 @@ function initChart(variableToGet, rowsToExpect) {
     dataLabels: holdData[variableToGet][rowsToExpect]['date'],
     data: [
       [
+        holdData[variableToGet][rowsToExpect]['optionsData']['upperBound'],
+        holdData[variableToGet][rowsToExpect]['optionsData']['lowerBound'],
         holdData[variableToGet][rowsToExpect]['optionsData']['wAnomaly'],
         holdData[variableToGet][rowsToExpect]['optionsData']['woAnomaly'],
       ]
@@ -190,8 +209,7 @@ function initChart(variableToGet, rowsToExpect) {
   }
 
   let i = VSFun.getRandomNum(0, 3);
-  options.backgroundColor = [];
-  options.backgroundColor.push(['rgba(0, 0, 0, 0)']);
+  options.backgroundColor = [['rgba(0, 0, 0, 0)'], ['rgba(0, 0, 0, 0)'], ['rgba(0, 0, 0, 0)']];
   if (i % 3 === 0) {
     options.backgroundColor.push(['rgba(0, 128, 255, 1)']);
   } else if (i % 3 === 1) {
@@ -210,16 +228,34 @@ function initHoldData(res, variableToGet, rowsToExpect) {
   holdData[variableToGet][rowsToExpect]['optionsData'] = [];
   holdData[variableToGet][rowsToExpect]['optionsData']['wAnomaly'] = [];
   holdData[variableToGet][rowsToExpect]['optionsData']['woAnomaly'] = [];
+  holdData[variableToGet][rowsToExpect]['optionsData']['upperBound'] = [];
+  holdData[variableToGet][rowsToExpect]['optionsData']['lowerBound'] = [];
 
   res.forEach(data => {
-    holdData[variableToGet][rowsToExpect]['date'].push(Date.parse(data.requestedVariable_Date));
-    if (data.anomalyDetected) {
-      holdData[variableToGet][rowsToExpect]['optionsData']['wAnomaly'].push(data.requestedVariable_Value);
-      holdData[variableToGet][rowsToExpect]['optionsData']['woAnomaly'].push(data.requestedVariable_Value);
-    } else {
-      holdData[variableToGet][rowsToExpect]['optionsData']['woAnomaly'].push(data.requestedVariable_Value);
-      holdData[variableToGet][rowsToExpect]['optionsData']['wAnomaly'].push(null);
+    // anomalyDetected: true
+    // anomalyDetected_Neg: false
+    // anomalyDetected_Pos: true
+    // expectedValue: 2877.421963162911
+    // lowerLimit: 2733.5508650047655
+    // requestedVariable_Date: "10/22/2011 12:00:00 AM"
+    // requestedVariable_Value: 3559
+    // upperLimit: 3021.293061321057
+
+    let date = Date.parse(data.requestedVariable_Date);
+    holdData[variableToGet][rowsToExpect]['date'].push(date);
+
+    holdData[variableToGet][rowsToExpect]['optionsData']['upperBound'].push(data.upperLimit);
+    holdData[variableToGet][rowsToExpect]['optionsData']['lowerBound'].push(data.lowerLimit);
+
+    holdData[variableToGet][rowsToExpect]['optionsData']['woAnomaly'].push(data.requestedVariable_Value);
+    holdData[variableToGet][rowsToExpect]['optionsData']['wAnomaly'].push(data.anomalyDetected ? data.requestedVariable_Value : null);
+    let trend;
+    if (data.anomalyDetected_Neg) {
+      trend = 'negative';
+    } else if (data.anomalyDetected_Pos) {
+      trend = 'positive';
     }
+    dataLabel.push(data.anomalyDetected ? `Anomaly detected with ${trend} trend. Expected value was ${data.expectedValue}` : null);
   });
 }
 
